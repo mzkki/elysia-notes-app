@@ -10,6 +10,7 @@ export const db = {
         email: t.String({ format: "email" }),
         password: t.String({ minLength: 8 }),
       }),
+      note: createInsertSchema(table.note),
     },
     "insert"
   ),
@@ -18,6 +19,7 @@ export const db = {
       user: createInsertSchema(table.user, {
         email: t.String({ format: "email" }),
       }),
+      note: table.note,
     },
     "select"
   ),

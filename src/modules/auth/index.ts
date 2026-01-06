@@ -11,10 +11,8 @@ export const auth = new Elysia().group("/auth", (app) =>
     // Sign In Endpoint
     .post(
       "/sign-in",
-      async ({ jwt, body, cookie: { session } }) => {
+      async ({ jwt, body }) => {
         const response = await Auth.signIn(body, jwt as JWTInstance);
-
-        session.value = response.token;
 
         return response;
       },
@@ -44,6 +42,44 @@ export const auth = new Elysia().group("/auth", (app) =>
         response: {
           200: AuthModel.signUpResponse,
           409: AuthModel.signUpInvalid,
+        },
+      }
+    )
+    // Refresh Token Endpoint
+    .post(
+      "/refresh",
+      async ({ jwt, body }) => {
+        const response = await Auth.refreshToken(
+          body.refreshToken,
+          jwt as JWTInstance
+        );
+        return response;
+      },
+      {
+        body: AuthModel.refreshTokenBody,
+        detail: {
+          tags: ["Authentication"],
+        },
+        response: {
+          200: AuthModel.refreshTokenResponse,
+          401: AuthModel.refreshTokenInvalid,
+        },
+      }
+    )
+    // Sign Out Endpoint
+    .post(
+      "/sign-out",
+      async ({ body }) => {
+        const response = await Auth.logout(body.refreshToken);
+        return response;
+      },
+      {
+        body: AuthModel.signOutBody,
+        detail: {
+          tags: ["Authentication"],
+        },
+        response: {
+          200: AuthModel.signOutRepsonse,
         },
       }
     )

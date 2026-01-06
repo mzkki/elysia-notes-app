@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { auth } from "./modules/auth";
 import openapi from "@elysiajs/openapi";
+import { jwtMiddleware } from "./modules/auth/middleware";
 
 const app = new Elysia()
   .use(
@@ -22,26 +23,45 @@ const app = new Elysia()
             description: "Endpoints related to user authentication",
           },
           {
-            name: "Users",
-            description: "Endpoints related to user management",
+            name: "Notes",
+            description: "Endpoints related to notes management",
           },
         ],
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: "http",
+              scheme: "bearer",
+              bearerFormat: "JWT",
+            },
+          },
+        },
       },
     })
   )
-  .get("/", () => "Hello Elysia", {
-    detail: {
-      hide: true,
-    },
+  .onError(({ code, status, error }) => {
+    console.error(`Error [${code}]:`, error);
+
+    if (code === "NOT_FOUND")
+      return status(404, { message: "Resource not found" });
+
+    if (code === "INTERNAL_SERVER_ERROR")
+      return status(500, { message: "Internal server error" });
   })
+  .use(auth)
+  .use(jwtMiddleware)
   .get(
     "/hello",
     () => {
       return { hello: "World" };
     },
-    { detail: { hide: true } }
+    {
+      isAuth: true,
+      detail: {
+        security: [{ bearerAuth: [] }],
+      },
+    }
   )
-  .use(auth)
   .listen(3000);
 
 console.log(

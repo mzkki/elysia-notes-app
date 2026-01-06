@@ -1,13 +1,13 @@
 import { Elysia } from "elysia";
-import { jwt } from "@elysiajs/jwt";
 
 import { Auth, JWTInstance } from "./service";
 import { AuthModel } from "./model";
+import { jwtConfig } from "./jwt";
 
 export const auth = new Elysia().group("/auth", (app) =>
   app
     // JWT Conf
-    .use(jwt({ secret: "super-secret-key", name: "jwt" }))
+    .use(jwtConfig)
     // Sign In Endpoint
     .post(
       "/sign-in",

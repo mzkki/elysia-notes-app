@@ -1,8 +1,6 @@
-// modules/auth/middleware.ts
-import { Elysia, status } from "elysia";
-import { jwt } from "@elysiajs/jwt";
+import { Elysia } from "elysia";
+import { jwtConfig } from "./jwt";
 
-// Type untuk user yang ter-authenticate
 export type AuthUser = {
   id: string;
   email: string;
@@ -11,12 +9,7 @@ export type AuthUser = {
 export const jwtMiddleware = new Elysia({
   name: "jwt-middleware",
 })
-  .use(
-    jwt({
-      name: "jwt",
-      secret: process.env.JWT_SECRET || "super-secret-key",
-    })
-  )
+  .use(jwtConfig)
   .derive({ as: "global" }, async ({ jwt, headers }) => {
     const authHeader = headers["authorization"];
 
